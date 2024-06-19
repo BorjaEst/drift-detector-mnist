@@ -33,12 +33,12 @@ parser.add_argument(
     choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
     default="INFO",
 )
-parser.add_argument(
-    *["-b", "--batch_size"],
-    help="Autoencoder name to use for identification on save folder.",
-    type=int,
-    default=128,
-)
+# parser.add_argument(
+#     *["-b", "--batch_size"],
+#     help="Data points processed per pass (default: %(default)s).",
+#     type=int,
+#     default=128,
+# )
 parser.add_argument(
     *["data_filepath"],
     nargs="?",
