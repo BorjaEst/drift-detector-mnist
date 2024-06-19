@@ -6,38 +6,17 @@ https://frouros.readthedocs.io/en/latest/examples/data_drift/MMD_advance.html
 
 # pylint: disable=unused-import
 import argparse
-import gzip
 import logging
 import pathlib
 import sys
-from functools import partial
 
-import frouros.callbacks
-import frouros.utils
-import numpy as np
-import scipy as sp
-import tensorflow as tf
 import torch
 import torchvision
-from frouros.detectors import concept_drift, data_drift
 
 from drift_detector_mnist import config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)
-
-
-# Type validators ---------------------------------------------------
-def version(string_value):
-    """Validator converter for version values and/or digits."""
-    if string_value in ["Staging", "Production"]:
-        return string_value
-    if not string_value.isdigit():
-        raise ValueError("Version must be int, 'Staging' or 'Production'")
-    value = int(string_value)
-    if value <= 0:
-        raise ValueError("Version number must be greater than 0")
-    return value
 
 
 # Script arguments definition ---------------------------------------
@@ -62,6 +41,7 @@ parser.add_argument(
 )
 parser.add_argument(
     *["data_filepath"],
+    nargs="?",
     help="Folder where to generate the datasets (default: %(default)s)",
     type=pathlib.Path,
     default="data",
