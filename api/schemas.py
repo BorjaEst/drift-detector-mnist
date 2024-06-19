@@ -6,6 +6,7 @@ to add new inputs to your API.
 The module shows simple but efficient example schemas. However, you may
 need to modify them for your needs.
 """
+
 import marshmallow
 from webargs import ValidationError, fields, validate
 
@@ -69,36 +70,11 @@ class PredArgsSchema(marshmallow.Schema):
         validate=validate.OneOf(list(responses.content_types)),
     )
 
-
-# EXAMPLE of Training Args description
-# = HAVE TO MODIFY FOR YOUR NEEDS =
-class TrainArgsSchema(marshmallow.Schema):
-    """Training arguments schema for api.train function."""
-
-    class Meta:  # Keep order of the parameters as they are defined.
-        # pylint: disable=missing-class-docstring
-        # pylint: disable=too-few-public-methods
-        ordered = True
-
-    model_name = ModelName(
+    alpha = fields.Float(
         metadata={
-            "description": "String/Path identification for models.",
+            "description": "Alpha value for the hypothesis test.",
+            "location": "form",
         },
-        required=True,
-    )
-
-    dataset = Dataset(
-        metadata={
-            "description": "Path to the training dataset.",
-        },
-        required=False,
-    )
-
-    epochs = fields.Integer(
-        metadata={
-            "description": "Number of epochs to train the model.",
-        },
-        required=False,
-        load_default=1,
-        validate=validate.Range(min=1),
+        missing=0.01,
+        validate=validate.Range(min=0.0, max=1.0),
     )
