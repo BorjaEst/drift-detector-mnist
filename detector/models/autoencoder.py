@@ -29,6 +29,7 @@ class Encoder(nn.Module):
         )
 
     def forward(self, x):
+        x = x.to(next(self.parameters()).device)
         x = self.encoder_conv(x)
         x = self.flatten(x)
         x = self.encoder_lin(x)
