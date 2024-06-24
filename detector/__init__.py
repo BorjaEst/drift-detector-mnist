@@ -1,7 +1,7 @@
 """Package to create dataset, build training and prediction pipelines.
 
 This file should define or import all the functions needed to operate the
-methods defined at drift_detector_mnist/api.py. Complete the TODOs
+methods defined at detector/api.py. Complete the TODOs
 with your own code or replace them importing your own functions.
 For example:
 ```py
@@ -12,7 +12,7 @@ from your_module import your_function as training
 
 import logging
 from pathlib import Path
-from drift_detector_mnist import config
+from detector import config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)

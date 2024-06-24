@@ -10,7 +10,7 @@ need to modify them for your needs.
 import marshmallow
 from webargs import ValidationError, fields, validate
 
-from drift_detector_mnist.api import config, responses, utils
+from detector.api import config, responses, utils
 
 
 class ModelName(fields.String):

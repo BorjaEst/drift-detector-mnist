@@ -16,7 +16,7 @@ import sys
 
 import torch
 
-from drift_detector_mnist import config, models, utils
+from detector import config, models, utils
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)

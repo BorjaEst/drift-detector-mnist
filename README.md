@@ -24,7 +24,7 @@ deepaas-run --listen-ip 0.0.0.0
 ├── README.md               <- The top-level README for developers using this project.
 ├── VERSION                 <- Version file indicating the version of the model
 │
-├── drift_detector_mnist
+├── detector
 │   ├── README.md           <- Instructions on how to integrate your model with DEEPaaS.
 │   ├── __init__.py         <- Makes <your-model-source> a Python module
 │   ├── ...                 <- Other source code files
@@ -78,14 +78,14 @@ After executing the cookiecutter template, you will have a folder structure
 ready to be integrated with DEEPaaS. The you can decide between starting the
 project from scratch or integrating your existing model with DEEPaaS.
 
-The folder `drift_detector_mnist` is designed to contain the source
+The folder `detector` is designed to contain the source
 code of your model. You can add your model files there or replace it by another
 repository by using [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
-The only requirement is that the folder `drift_detector_mnist` contains
+The only requirement is that the folder `detector` contains
 an `__init__.py` file conserving the already defined methods. You can edit the
 template functions already defined inside or import your own functions from
-another file. See the [README.md](./drift_detector_mnist/README.md)
-in the `drift_detector_mnist` folder for more information.
+another file. See the [README.md](./detector/README.md)
+in the `detector` folder for more information.
 
 Those methods, are used by the subpackage `api` to define the API interface.
 See the project structure section for more information about the `api` folder.
@@ -99,7 +99,7 @@ requirement into the `requirements.txt` file. If the model is not published
 yet, you can add it as a submodule inside or outside the project and install
 it by using `pip install -e <path-to-model>`. In both cases, you will need to
 interface the model with the `api` subpackage with the required methods. See
-the [README.md](./drift_detector_mnist/README.md)
+the [README.md](./detector/README.md)
 
 ## Documentation
 

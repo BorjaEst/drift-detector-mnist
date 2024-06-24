@@ -11,7 +11,7 @@ import subprocess
 import sys
 from subprocess import TimeoutExpired
 
-from drift_detector_mnist.api import config
+from detector.api import config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)

@@ -18,7 +18,7 @@ import scipy as sp
 import torch
 from frouros.detectors import concept_drift, data_drift
 
-from drift_detector_mnist import config
+from detector import config
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)

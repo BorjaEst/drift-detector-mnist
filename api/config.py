@@ -13,10 +13,10 @@ from importlib import metadata
 
 # Ensure that your model package has a config.py file with the following
 # pylint: disable=unused-import
-from drift_detector_mnist.config import DATA_PATH, MODELS_PATH
+from detector.config import DATA_PATH, MODELS_PATH
 
 # Get AI model metadata
-API_NAME = "drift_detector_mnist"
+API_NAME = "detector"
 API_METADATA = metadata.metadata(API_NAME)  # .json
 
 # Fix metadata for emails from pyproject parsing

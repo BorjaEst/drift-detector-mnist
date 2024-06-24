@@ -9,9 +9,9 @@ docs [1] and at a canonical exemplar module [2].
 
 import logging
 
-import drift_detector_mnist as aimodel
+import detector as aimodel
 
-from drift_detector_mnist.api import config, responses, schemas, utils
+from detector.api import config, responses, schemas, utils
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)

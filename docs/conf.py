@@ -164,7 +164,7 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'drift_detector_mnist_doc'
+htmlhelp_basename = 'detector_doc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -184,7 +184,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
     ('index',
-     'drift_detector_mnist.tex',
+     'detector.tex',
      u'drift-detector-mnist Documentation',
      u"Borja Esteban", 'manual'),
 ]
@@ -215,7 +215,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'drift_detector_mnist', u'drift-detector-mnist Documentation',
+    ('index', 'detector', u'drift-detector-mnist Documentation',
      [u"Borja Esteban"], 1)
 ]
 
@@ -229,7 +229,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'drift_detector_mnist', u'drift-detector-mnist Documentation',
+    ('index', 'detector', u'drift-detector-mnist Documentation',
      u"Borja Esteban", 'drift-detector-mnist',
      'Drift Detector for MNIST images with Frouros', 'Miscellaneous'),
 ]
