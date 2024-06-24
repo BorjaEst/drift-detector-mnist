@@ -15,32 +15,33 @@ your function defined at `api.get_metadata`.
 If your file grows in complexity, you can split it into multiple files in
 the same folder. However, remember to add the prefix `test_` to the file.
 """
+
 # pylint: disable=redefined-outer-name
 # pylint: disable=unused-argument
 
 
-def test_predictions_type(predictions):
-    """Tests that predictions is dict type."""
+def test_detection_type(predictions):
+    """Tests that detection return is dict type."""
     assert isinstance(predictions, dict)
 
 
-# Example to test predictions probabilities output shapes
-# def test_predictions_len(predictions):
-#     """Tests that predictions have length of 10."""
-#     for prediction in predictions[0:10]:
-#         assert isinstance(prediction, list)
-#         assert len(prediction) == 10
+def test_observed_statistic(predictions):
+    """Tests that detection logs has MMD value for distance."""
+    assert "observed_statistic" in predictions
+    assert isinstance(predictions["observed_statistic"], float)
+    assert predictions["observed_statistic"] > 0.0
+    assert predictions["observed_statistic"] < 1.0
 
 
-# Example to test predictions probabilities range 0.0 and 1.1
-# def test_predictions_range(predictions):
-#     """Tests that predictions are between 0 and 1."""
-#     for prediction in predictions[0:10]:
-#         assert all(0.0 <= x <= 1.1 for x in prediction)
+def test_permuted_statistics(predictions):
+    """Tests that detection logs have permuted_statistics."""
+    assert "permuted_statistics" in predictions
+    assert isinstance(predictions["permuted_statistics"], list)
 
 
-# Example to test predictions probabilities total =~ 1.0
-# def test_predictions_sum(predictions):
-#     """Tests that sum of ind predictions totals ~1.0."""
-#     for prediction in predictions[0:10]:
-#         assert 0.99 < sum(prediction) < 1.01
+def test_p_value(predictions):
+    """Tests that detection logs have probability value."""
+    assert "p_value" in predictions
+    assert isinstance(predictions["p_value"], float)
+    assert predictions["p_value"] > 0.0
+    assert predictions["p_value"] < 1.0

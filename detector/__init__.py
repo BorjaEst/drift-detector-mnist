@@ -42,5 +42,5 @@ def predict(detector_name, input_file):
         sample_encoded = autoencoder.encoder.forward(sample_images)
         sample_encoded = sample_encoded.cpu().numpy()
     logger.debug("Run detector using sample file")
-    mmd, callbacks_logs = detector_model.compare(X=sample_encoded)
-    return {"MMD": mmd.distance, **callbacks_logs}
+    _mmd, callbacks_logs = detector_model.compare(X=sample_encoded)
+    return callbacks_logs["permutation_test"]

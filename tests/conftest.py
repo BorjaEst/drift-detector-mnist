@@ -11,8 +11,12 @@ import os
 import pathlib
 import shutil
 import tempfile
+from types import SimpleNamespace
+from unittest.mock import MagicMock, create_autospec, patch
 
+import numpy as np
 import pytest
+from frouros.detectors import concept_drift, data_drift
 
 import api
 
@@ -50,12 +54,6 @@ def copytree_data(testdir, original_datapath):
     shutil.copytree(original_datapath, f"{testdir}/{api.config.DATA_PATH}")
 
 
-@pytest.fixture(scope="module", autouse=True)
-def copytree_models(testdir, original_modelspath):
-    """Fixture to copy the original models directory to the test directory."""
-    shutil.copytree(original_modelspath, f"{testdir}/{api.config.MODELS_PATH}")
-
-
 def generate_signature(names, kind=inspect.Parameter.POSITIONAL_OR_KEYWORD):
     """Function to generate dynamically signatures."""
     parameters = [inspect.Parameter(name, kind) for name in names]
@@ -85,14 +83,21 @@ globals()["predict_kwds"] = generate_fields_fixture(signature)
 @pytest.fixture(scope="module")
 def predictions(predict_kwds):
     """Fixture to return predictions to assert properties."""
-    # # Define your expected predictions for your model
-    # predictions = np.random.dirichlet(np.ones(10), size=[20])
-    # model = create_autospec(
-    #     models.Model, predict=create_autospec(models.Model.predict)
-    # )
-    # model.predict.return_value = predictions
-    # # Patching the load_model from your used framework
-    # with patch("keras.models.load_model", autospec=True) as load:
-    #     load.return_value = model
-    #     return api.predict(**predict_kwds)
-    return api.predict(**predict_kwds)
+    comparative_result = (
+        SimpleNamespace(distance=0.28),
+        {
+            "permutation_test": {
+                "observed_statistic": 0.28,
+                "permuted_statistics": 0.01 * np.random.rand(10),
+                "p_value": 0.01,
+            }
+        },
+    )
+    detector = create_autospec(
+        data_drift.MMD, compare=create_autospec(data_drift.MMD.compare)
+    )
+    detector.encoder = MagicMock()  # Mock encoder forward method
+    detector.compare.return_value = comparative_result
+    with patch("torch.load", autospec=True) as load:
+        load.return_value = detector
+        return api.predict(**predict_kwds)
