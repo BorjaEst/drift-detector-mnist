@@ -15,8 +15,8 @@ import torchvision
 
 from detector import config
 
+# Setup logging -----------------------------------------------------
 logger = logging.getLogger(__name__)
-logger.setLevel(config.LOG_LEVEL)
 
 
 # Script arguments definition ---------------------------------------
@@ -31,22 +31,16 @@ parser.add_argument(
     help="Sets the logging level (default: %(default)s)",
     type=str,
     choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-    default="INFO",
-)
-parser.add_argument(
-    *["data_filepath"],
-    nargs="?",
-    help="Folder where to generate the datasets (default: %(default)s)",
-    type=pathlib.Path,
-    default=config.DATA_PATH,
+    default=config.LOG_LEVEL,
 )
 
 
 # Script command actions --------------------------------------------
-def _run_command(data_filepath, **options):
+def _run_command(**options):
     logging.basicConfig(level=options["verbosity"])
+    logger.info("Start of MNIST image processing script")
 
-    logger.debug("Define transform for images into tensors")
+    logger.info("Define transform for images into tensors")
     transform = torchvision.transforms.Compose(
         [
             # Convert images to the range [0.0, 1.0] (normalize)
@@ -54,30 +48,30 @@ def _run_command(data_filepath, **options):
         ]
     )
 
-    logger.debug("Download and transform the training MNIST dataset")
+    logger.info("Download and transform the training MNIST dataset")
     train_original_dataset = torchvision.datasets.MNIST(
-        root=data_filepath,
+        root=config.DATA_PATH,
         train=True,
         download=True,
         transform=transform,
     )
 
-    logger.debug("Download and transform the testing MNIST dataset")
+    logger.info("Download and transform the testing MNIST dataset")
     test_original_dataset = torchvision.datasets.MNIST(
-        root=data_filepath,
+        root=config.DATA_PATH,
         train=False,
         download=True,
         transform=transform,
     )
 
-    logger.debug("Merge train and test datasets to avoid bias")
+    logger.info("Merge train and test datasets to avoid bias")
     dataset = torch.utils.data.ConcatDataset(
         datasets=[
             train_original_dataset,
             test_original_dataset,
         ]
     )
-    train_dataset, test_dataset = torch.utils.data.random_split(
+    train_dataset, _test_dataset = torch.utils.data.random_split(
         dataset=dataset,
         lengths=[
             len(train_original_dataset),
@@ -85,53 +79,28 @@ def _run_command(data_filepath, **options):
         ],
     )
 
-    logger.debug("Calc dataset sizes for model, autoencoder and reference")
+    logger.info("Calc dataset sizes for model, autoencoder and reference")
     model_dataset_size = 40000
     autoencoder_dataset_size = 19000
     reference_dataset_size = (
         len(train_dataset) - model_dataset_size - autoencoder_dataset_size
     )
 
-    logger.debug("Split into model, autoencoder and reference")
-    model_dataset, autoencoder_dataset, reference_dataset = (
-        torch.utils.data.random_split(
-            dataset=train_dataset,
-            lengths=[
-                model_dataset_size,
-                autoencoder_dataset_size,
-                reference_dataset_size,
-            ],
-        )
+    logger.info("Split into model, autoencoder and reference")
+    datasets = torch.utils.data.random_split(
+        dataset=train_dataset,
+        lengths=[
+            model_dataset_size,
+            autoencoder_dataset_size,
+            reference_dataset_size,
+        ],
     )
 
-    logger.debug("Save the datasets to disk")
-    torch.save(model_dataset, f"{data_filepath}/model_dataset.pt")
-    torch.save(autoencoder_dataset, f"{data_filepath}/autoencoder_dataset.pt")
-    torch.save(reference_dataset, f"{data_filepath}/reference_dataset.pt")
+    logger.info("Save datasets to disk in %s", config.DATA_PATH)
+    torch.save(datasets[0], f"{config.DATA_PATH}/model_dataset.pt")
+    torch.save(datasets[1], f"{config.DATA_PATH}/autoencoder_dataset.pt")
+    torch.save(datasets[2], f"{config.DATA_PATH}/reference_dataset.pt")
 
-    # logger.debug("Split model dataset into train and validation")
-    # model_dataset_size = len(model_dataset)
-    # model_train_dataset, model_val_dataset = torch.utils.data.random_split(
-    #     dataset=model_dataset,
-    #     lengths=[
-    #         int(model_dataset_size * 0.8),
-    #         int(model_dataset_size * 0.2),
-    #     ],
-    # )
-
-    # logger.debug("Define data loaders for model and autoencoder")
-    # model_train_data_loader = torch.utils.data.DataLoader(
-    #     dataset=model_train_dataset, batch_size=batch_size, shuffle=True
-    # )
-    # model_val_data_loader = torch.utils.data.DataLoader(
-    #     dataset=model_val_dataset, batch_size=batch_size, shuffle=False
-    # )
-    # autoencoder_dataset_size = len(autoencoder_dataset)
-
-    # logger.debug("Populate data_filepath with processed data")
-    # raise NotImplementedError("TODO")
-
-    # End of program
     logger.info("End of MNIST image processing script")
 
 

@@ -16,8 +16,8 @@ import torch
 
 from detector import config, models, utils
 
+# Setup logging -----------------------------------------------------
 logger = logging.getLogger(__name__)
-logger.setLevel(config.LOG_LEVEL)
 
 
 # Script arguments definition ---------------------------------------
@@ -32,7 +32,7 @@ parser.add_argument(
     help="Sets the logging level (default: %(default)s)",
     type=str,
     choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-    default="INFO",
+    default=config.LOG_LEVEL,
 )
 parser.add_argument(
     *["--epochs"],
@@ -68,8 +68,8 @@ parser.add_argument(
     *["autoencoder_dataset"],
     nargs="?",
     help="Path to training dataset (default: %(default)s)",
-    type=pathlib.Path,
-    default=f"{config.DATA_PATH}/autoencoder_dataset.pt",
+    type=str,
+    default="autoencoder_dataset",
 )
 
 
@@ -78,20 +78,22 @@ def _run_command(autoencoder_dataset, **options):
     logging.basicConfig(level=options["verbosity"])
     logger.info("Start of MNIST autoencoder creation script")
 
-    logger.debug("Generate autoencoder from models")
+    logger.info("Generate autoencoder from models")
     autoencoder = models.Autoencoder(
         embedding_dim=options["embedding_dim"],
     ).to(config.device)
 
-    logger.debug("Define optimizer and loss function")
+    logger.info("Define optimizer and loss function")
     optimizer = torch.optim.AdamW(autoencoder.parameters(), lr=1e-3)
     loss = None
 
-    logger.debug("Load MNIST autoencoder dataset")
-    autoencoder_dataset = torch.load(autoencoder_dataset)
+    logger.info("Load MNIST autoencoder dataset")
+    autoencoder_dataset = torch.load(
+        f"{config.DATA_PATH}/{autoencoder_dataset}.pt"
+    )
     autoencoder_dataset_size = len(autoencoder_dataset)
 
-    logger.debug("Split dataset into training and validation")
+    logger.info("Split dataset into training and validation")
     autoencoder_train_dataset, autoencoder_val_dataset = (
         torch.utils.data.random_split(
             dataset=autoencoder_dataset,
@@ -102,21 +104,21 @@ def _run_command(autoencoder_dataset, **options):
         )
     )
 
-    logger.debug("Define data loaders for autoencoder training")
+    logger.info("Define data loaders for autoencoder training")
     autoencoder_train_data_loader = torch.utils.data.DataLoader(
         dataset=autoencoder_train_dataset,
         batch_size=options["batch_size"],
         shuffle=True,
     )
 
-    logger.debug("Define data loaders for autoencoder validation")
+    logger.info("Define data loaders for autoencoder validation")
     autoencoder_val_data_loader = torch.utils.data.DataLoader(
         dataset=autoencoder_val_dataset,
         batch_size=options["batch_size"],
         shuffle=False,
     )
 
-    logger.debug("Start autoencoder training loop")
+    logger.info("Start autoencoder training loop")
     patience_counter = options["patience"]
     for epoch in range(options["epochs"]):
         print(f"Epoch {epoch + 1}:")
@@ -169,10 +171,10 @@ def _run_command(autoencoder_dataset, **options):
         else:
             patience_counter -= 1
             if patience_counter == 0:
-                print(f"Early stopping at epoch {epoch + 1}")
+                logger.debug("Early stopping at epoch %s", epoch + 1)
                 break
 
-    logger.debug("Save the best autoencoder model to disk")
+    logger.info("Save the best autoencoder model to disk")
     autoencoder = best_autoencoder
     torch.save(autoencoder, f"{config.MODELS_PATH}/{options['name']}.pt")
 

@@ -20,8 +20,8 @@ from frouros.detectors import concept_drift, data_drift
 
 from detector import config
 
+# Setup logging -----------------------------------------------------
 logger = logging.getLogger(__name__)
-logger.setLevel(config.LOG_LEVEL)
 
 
 # Script arguments definition ---------------------------------------
@@ -36,7 +36,7 @@ parser.add_argument(
     help="Sets the logging level (default: %(default)s)",
     type=str,
     choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-    default="INFO",
+    default=config.LOG_LEVEL,
 )
 parser.add_argument(
     *["-p", "--num_permutations"],
@@ -54,36 +54,38 @@ parser.add_argument(
     *["--autoencoder"],
     help="File name containing the autoencoder for the detection.",
     type=str,
-    required=True,
+    default="mnist_autoencoder",
 )
 parser.add_argument(
     *["reference_dataset"],
     nargs="?",
     help="Path to file containing the reference data (default: %(default)s)",
     type=pathlib.Path,
-    default="data/reference_dataset.pt",
+    default="reference_dataset",
 )
 
 
 # Script command actions --------------------------------------------
 def _run_command(autoencoder, reference_dataset, **options):
     logging.basicConfig(level=options["verbosity"])
+    logger.info("Start of MNIST detector generation script")
 
-    logger.debug("Load the autoencoder model from disk")
-    autoencoder = torch.load(autoencoder)  # Torch model
+    logger.info("Load the autoencoder model from disk")
+    autoencoder = torch.load(f"{config.MODELS_PATH}/{autoencoder}.pt")
 
-    logger.debug("Load the reference data and encode it")
-    reference_dataset = torch.load(reference_dataset)
+    logger.info("Load the reference data and encode it")
+    reference_dataset = torch.load(f"{config.DATA_PATH}/{reference_dataset}.pt")
     X_ref_sample = np.array([X.tolist() for X, _ in reference_dataset])
     X_ref_sample = X_ref_sample.astype(np.float32)
-    X_ref_encoded = autoencoder.encoder(torch.Tensor(X_ref_sample)).numpy()
+    X_ref_encoded = autoencoder.encoder(torch.Tensor(X_ref_sample))
+    X_ref_encoded = X_ref_encoded.cpu().detach().numpy()
 
-    logger.debug("Define the detector kernel and parameters")
+    logger.info("Define the detector kernel and parameters")
     pdist = sp.spatial.distance.pdist(X=X_ref_encoded, metric="euclidean")
     sigma = np.median(pdist)
     kernel = partial(frouros.utils.kernels.rbf_kernel, sigma=sigma)
 
-    logger.debug("Create a MMD detector with permutation test")
+    logger.info("Create a MMD detector with permutation test")
     detector = data_drift.MMD(
         kernel,
         callbacks=[
@@ -93,19 +95,17 @@ def _run_command(autoencoder, reference_dataset, **options):
                 num_jobs=-1,
                 method="exact",
                 name="permutation_test",
-                verbose=False,
+                verbose=options["verbosity"] == "DEBUG",
             ),
         ],
     )
 
-    logger.debug("Fit the detector with the reference data")
+    logger.info("Fit the detector with the reference data")
     fit_logs = detector.fit(X=X_ref_encoded)
-    logger.debug(f"Fit logs: {fit_logs}")
+    logger.debug("Fit logs: %s", fit_logs)
 
-    logger.debug("Save the detector to disk")
-    detector.save(
-        filepath=f"{options['name']}.something"
-    )  # TODO: Change extension
+    logger.info("Save the detector to disk")
+    torch.save(detector, f"{config.MODELS_PATH}/{options['name']}.pt")
 
     # End of program
     logger.info("End of MNIST detector generation script")
