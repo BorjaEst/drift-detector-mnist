@@ -33,12 +33,6 @@ parser.add_argument(
     choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
     default="INFO",
 )
-# parser.add_argument(
-#     *["-b", "--batch_size"],
-#     help="Data points processed per pass (default: %(default)s).",
-#     type=int,
-#     default=128,
-# )
 parser.add_argument(
     *["data_filepath"],
     nargs="?",
@@ -133,31 +127,6 @@ def _run_command(data_filepath, **options):
     #     dataset=model_val_dataset, batch_size=batch_size, shuffle=False
     # )
     # autoencoder_dataset_size = len(autoencoder_dataset)
-
-    # logger.debug("Split autoencoder dataset into train and validation")
-    # autoencoder_train_dataset, autoencoder_val_dataset = (
-    #     torch.utils.data.random_split(
-    #         dataset=autoencoder_dataset,
-    #         lengths=[
-    #             int(autoencoder_dataset_size * 0.8),
-    #             int(autoencoder_dataset_size * 0.2),
-    #         ],
-    #     )
-    # )
-
-    # logger.debug("Define data loaders for autoencoder training")
-    # autoencoder_train_data_loader = torch.utils.data.DataLoader(
-    #     dataset=autoencoder_train_dataset,
-    #     batch_size=batch_size,
-    #     shuffle=True,
-    # )
-
-    # logger.debug("Define data loaders for autoencoder validation")
-    # autoencoder_val_data_loader = torch.utils.data.DataLoader(
-    #     dataset=autoencoder_val_dataset,
-    #     batch_size=batch_size,
-    #     shuffle=False,
-    # )
 
     # logger.debug("Populate data_filepath with processed data")
     # raise NotImplementedError("TODO")

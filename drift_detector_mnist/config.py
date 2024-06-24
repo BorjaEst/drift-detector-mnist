@@ -7,11 +7,14 @@ inside `api` to define exclusive CONSTANTS related to your interface.
 
 By convention, the CONSTANTS defined in this module are in UPPER_CASE.
 """
+
 # Do NOT import anything from `api` or `drift_detector_mnist` packages here.
 # That might create circular dependencies.
 import logging
 import os
 from pathlib import Path
+
+import torch
 
 # DEEPaaS can load more than one installed models. Therefore, in order to
 # avoid conflicts, each default PATH environment variables should lead to
@@ -20,10 +23,14 @@ from pathlib import Path
 BASE_PATH = Path(__file__).resolve(strict=True).parents[1]
 
 # Path definition for the pre-trained models
-MODELS_PATH = os.getenv("DRIFT_DETECTOR_MNIST_MODELS_PATH", default=BASE_PATH / "models")
+MODELS_PATH = os.getenv(
+    "DRIFT_DETECTOR_MNIST_MODELS_PATH", default=BASE_PATH / "models"
+)
 MODELS_PATH = Path(MODELS_PATH)
 # Path definition for data folder
-DATA_PATH = os.getenv("DRIFT_DETECTOR_MNIST_DATA_PATH", default=BASE_PATH / "data")
+DATA_PATH = os.getenv(
+    "DRIFT_DETECTOR_MNIST_DATA_PATH", default=BASE_PATH / "data"
+)
 DATA_PATH = Path(DATA_PATH)
 
 # configure logging:
@@ -32,5 +39,10 @@ DATA_PATH = Path(DATA_PATH)
 ENV_LOG_LEVEL = os.getenv("DRIFT_DETECTOR_MNIST_LOG_LEVEL", "INFO")
 LOG_LEVEL = getattr(logging, ENV_LOG_LEVEL.upper())
 
+# Device configuration
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # EXAMPLE on how to load environment variables
-PARAMETER_INT = int(os.getenv("DRIFT_DETECTOR_MNIST_PARAMETER_INT", default="10"))
+PARAMETER_INT = int(
+    os.getenv("DRIFT_DETECTOR_MNIST_PARAMETER_INT", default="10")
+)
