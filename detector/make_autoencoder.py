@@ -11,6 +11,7 @@ import logging
 import pathlib
 import sys
 
+import numpy as np
 import torch
 
 from detector import config, models, utils
@@ -68,7 +69,7 @@ parser.add_argument(
     nargs="?",
     help="Path to training dataset (default: %(default)s)",
     type=pathlib.Path,
-    default="data/autoencoder_dataset.pt",
+    default=f"{config.DATA_PATH}/autoencoder_dataset.pt",
 )
 
 
@@ -86,9 +87,9 @@ def _run_command(autoencoder_dataset, **options):
     optimizer = torch.optim.AdamW(autoencoder.parameters(), lr=1e-3)
     loss = None
 
-    logger.debug("Load MNIST dataset")
-    autoencoder_train_data_loader = torch.load(autoencoder_dataset)
-    autoencoder_dataset_size = len(autoencoder_train_data_loader.dataset)
+    logger.debug("Load MNIST autoencoder dataset")
+    autoencoder_dataset = torch.load(autoencoder_dataset)
+    autoencoder_dataset_size = len(autoencoder_dataset)
 
     logger.debug("Split dataset into training and validation")
     autoencoder_train_dataset, autoencoder_val_dataset = (
@@ -162,8 +163,7 @@ def _run_command(autoencoder_dataset, **options):
         print(f"\tValidation loss: {val_loss:.4f}")
 
         # Early stopping and save best model
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+        if val_loss < np.inf:
             best_autoencoder = copy.deepcopy(autoencoder)
             patience_counter = options["patience"]
         else:
@@ -172,7 +172,9 @@ def _run_command(autoencoder_dataset, **options):
                 print(f"Early stopping at epoch {epoch + 1}")
                 break
 
+    logger.debug("Save the best autoencoder model to disk")
     autoencoder = best_autoencoder
+    torch.save(autoencoder, f"{config.MODELS_PATH}/{options['name']}.pt")
 
     logger.info("End of MNIST autoencoder creation script")
 

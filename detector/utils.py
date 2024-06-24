@@ -13,7 +13,8 @@ def contractive_loss(outputs_e, outputs, inputs, lambda_=1e-4):
     criterion = nn.MSELoss()
     loss1 = criterion(outputs, inputs)
 
-    outputs_e.backward(torch.ones(outputs_e.size()), retain_graph=True)
+    ones = torch.ones(outputs_e.size()).to(outputs_e.device)
+    outputs_e.backward(ones, retain_graph=True)
     loss2 = torch.sqrt(torch.sum(torch.pow(inputs.grad, 2)))
     inputs.grad.data.zero_()
 
