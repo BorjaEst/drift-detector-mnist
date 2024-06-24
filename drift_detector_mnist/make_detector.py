@@ -108,7 +108,7 @@ def _run_command(autoencoder, reference_dataset, **options):
     )  # TODO: Change extension
 
     # End of program
-    logger.info("End of MNIST autoencoder creation script")
+    logger.info("End of MNIST detector generation script")
 
 
 # Main call ---------------------------------------------------------
