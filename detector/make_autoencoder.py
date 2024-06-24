@@ -4,9 +4,6 @@ The following code is based on the drift detector example from:
 https://frouros.readthedocs.io/en/latest/examples/data_drift/MMD_advance.html
 """
 
-"""Script to generate MNIST data encoder to reduce dimensionality of input
-data.
-"""
 # pylint: disable=unused-import,invalid-name
 import argparse
 import copy
