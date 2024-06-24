@@ -48,7 +48,7 @@ parser.add_argument(
     *["-n", "--name"],
     help="File name to where to save the detector.",
     type=str,
-    required=True,
+    default="mmd_detector",
 )
 parser.add_argument(
     *["--autoencoder"],
@@ -66,7 +66,7 @@ parser.add_argument(
 
 
 # Script command actions --------------------------------------------
-def _run_command(name, autoencoder, reference_dataset, **options):
+def _run_command(autoencoder, reference_dataset, **options):
     logging.basicConfig(level=options["verbosity"])
 
     logger.debug("Load the autoencoder model from disk")
@@ -103,7 +103,9 @@ def _run_command(name, autoencoder, reference_dataset, **options):
     logger.debug(f"Fit logs: {fit_logs}")
 
     logger.debug("Save the detector to disk")
-    detector.save(filepath=f"{name}.")
+    detector.save(
+        filepath=f"{options['name']}.something"
+    )  # TODO: Change extension
 
     # End of program
     logger.info("End of MNIST autoencoder creation script")
