@@ -1,17 +1,11 @@
-"""Package to create dataset, build training and prediction pipelines.
-
-This file should define or import all the functions needed to operate the
-methods defined at detector/api.py. Complete the TODOs
-with your own code or replace them importing your own functions.
-For example:
-```py
-from your_module import your_function as predict
-from your_module import your_function as training
-```
-"""
+"""Detector module for drift detection of MNIST data."""
 
 import logging
-from pathlib import Path
+import pathlib
+
+import torch
+import numpy as np
+
 from detector import config
 
 logger = logging.getLogger(__name__)
@@ -24,12 +18,29 @@ def warm(**kwargs):
     pass
 
 
-def predict(detector_name, input_file, **options):
-    """Main/public method to perform prediction"""
-    sample = None  # TODO: Load sample from input_file
-    detector = None  # TODO: Load the detector
-    mmd, callbacks_logs = detector.compare(X=sample)
-    p_value = callbacks_logs["permutation_test"]["p_value"]
-    logger.debug(f"MMD: {mmd}")
-    logger.debug(f"p_value: %s", round(p_value, 8))
-    return {"MMD": mmd.distance, "p_value": p_value}
+def predict(detector_name, input_file):
+    """Performs drift detection on data using a MNIST detector.
+
+    Arguments:
+        model_name -- Model name to use for detection.
+        input_file -- tp file with images equivalent to MNIST data.
+
+    Returns:
+        Return value from torch detector model compare.
+    """
+    autoencoder_uri = pathlib.Path(config.MODELS_PATH, "mnist_autoencoder.pt")
+    detector_uri = pathlib.Path(config.MODELS_PATH, detector_name)
+    logger.debug("Loading autoencoder model from uri: %s", autoencoder_uri)
+    autoencoder = torch.load(autoencoder_uri)
+    logger.debug("Loading model from uri: %s", detector_uri)
+    detector_model = torch.load(detector_uri)
+    logger.debug("Loading data from input_file: %s", input_file)
+    sample_images = np.load(input_file)
+    logger.debug("Encode the sample images using the autoencoder")
+    with torch.no_grad():
+        sample_images = torch.tensor(sample_images).float()
+        sample_encoded = autoencoder.encoder.forward(sample_images)
+        sample_encoded = sample_encoded.cpu().numpy()
+    logger.debug("Run detector using sample file")
+    mmd, callbacks_logs = detector_model.compare(X=sample_encoded)
+    return {"MMD": mmd.distance, **callbacks_logs}

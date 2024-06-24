@@ -6,12 +6,15 @@ your API.
 The module shows simple but efficient example utilities. However, you may
 need to modify them for your needs.
 """
+
 import logging
 import subprocess
 import sys
 from subprocess import TimeoutExpired
 
-from detector.api import config
+import numpy as np
+
+from detector.api import config  # pylint: disable=E0611,E0401
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)
@@ -104,3 +107,16 @@ def train_arguments(schema):
         sys.modules[func.__module__].get_train_args = get_args
         return func  # Decorator that returns same function
     return inject_function_schema
+
+
+def convert_to_serializable(obj):
+    """Recursively convert objects to JSON serializable formats."""
+    if isinstance(obj, dict):
+        return {
+            key: convert_to_serializable(value) for key, value in obj.items()
+        }
+    if isinstance(obj, list):
+        return [convert_to_serializable(element) for element in obj]
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    return obj

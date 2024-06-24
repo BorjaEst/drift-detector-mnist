@@ -16,7 +16,7 @@ from importlib import metadata
 from detector.config import DATA_PATH, MODELS_PATH
 
 # Get AI model metadata
-API_NAME = "detector"
+API_NAME = "drift-detector-mnist"
 API_METADATA = metadata.metadata(API_NAME)  # .json
 
 # Fix metadata for emails from pyproject parsing

@@ -10,7 +10,7 @@ need to modify them for your needs.
 import marshmallow
 from webargs import ValidationError, fields, validate
 
-from detector.api import config, responses, utils
+from detector.api import config, responses, utils  # pylint: disable=E0611,E0401
 
 
 class ModelName(fields.String):
@@ -19,7 +19,9 @@ class ModelName(fields.String):
     """
 
     def _deserialize(self, value, attr, data, **kwargs):
-        if value not in utils.ls_dirs(config.MODELS_PATH):
+        if not ".pt" in value:
+            value = value + ".pt"
+        if value not in utils.ls_files(config.MODELS_PATH, "[A-Za-z0-9]*"):
             raise ValidationError(f"Checkpoint `{value}` not found.")
         return str(config.MODELS_PATH / value)
 
@@ -54,7 +56,7 @@ class PredArgsSchema(marshmallow.Schema):
 
     input_file = fields.Field(
         metadata={
-            "description": "File with np.arrays for predictions.",
+            "description": "File with np.arrays for predictions (.npy).",
             "type": "file",
             "location": "form",
         },
@@ -68,13 +70,4 @@ class PredArgsSchema(marshmallow.Schema):
         },
         required=True,
         validate=validate.OneOf(list(responses.content_types)),
-    )
-
-    alpha = fields.Float(
-        metadata={
-            "description": "Alpha value for the hypothesis test.",
-            "location": "form",
-        },
-        missing=0.01,
-        validate=validate.Range(min=0.0, max=1.0),
     )

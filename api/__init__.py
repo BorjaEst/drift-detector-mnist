@@ -11,7 +11,12 @@ import logging
 
 import detector as aimodel
 
-from detector.api import config, responses, schemas, utils
+from detector.api import (  # pylint: disable=E0611,E0401
+    config,
+    responses,
+    schemas,
+    utils,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)
@@ -35,7 +40,7 @@ def get_metadata():
             "license": config.API_METADATA.get("license"),
             "version": config.API_METADATA.get("version"),
             "datasets": utils.ls_files(config.DATA_PATH, "[A-Za-z0-9]*"),
-            "models": utils.ls_dirs(config.MODELS_PATH),
+            "models": utils.ls_files(config.MODELS_PATH, "[A-Za-z0-9]*"),
         }
         logger.debug("Package model metadata: %s", metadata)
         return metadata
