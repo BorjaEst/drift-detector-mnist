@@ -38,7 +38,7 @@ parser.add_argument(
     nargs="?",
     help="Folder where to generate the datasets (default: %(default)s)",
     type=pathlib.Path,
-    default="data",
+    default=config.DATA_PATH,
 )
 
 
