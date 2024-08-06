@@ -10,6 +10,7 @@ docs [1] and at a canonical exemplar module [2].
 import logging
 
 import detector as aimodel
+import mlflow
 
 from detector.api import (  # pylint: disable=E0611,E0401
     config,
@@ -82,9 +83,13 @@ def predict(model_name, input_file, accept="application/json", **options):
     try:  # Call your AI model predict() method
         logger.info("Using model %s for predictions", model_name)
         logger.debug("Loading data from input_file: %s", input_file.filename)
-        logger.debug("Predict with options: %s", options)
-        result = aimodel.predict(model_name, input_file.filename, **options)
-        logger.debug("Predict result: %s", result)
+        with mlflow.start_run(experiment_id=config.EXPERIMENT_ID):
+            logger.debug("Predict with options: %s", options)
+            result = aimodel.predict(model_name, input_file.filename, **options)
+            logger.debug("Predict result: %s", result)
+            logger.debug("Log metric in mlflow")
+            mlflow.log_table(result, artifact_file="statistics.json")
+            mlflow.log_metric("p_value", result["p_value"])
         logger.info("Returning content_type for: %s", accept)
         return responses.content_types[accept](result, **options)
     except Exception as err:
