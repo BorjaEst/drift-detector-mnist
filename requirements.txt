@@ -5,6 +5,8 @@ flaat~=1.1.1
 
 # External requirements for the model and API
 fPDF2~=2.7.5
+torch~=2.2.2
+numpy~=1.26.3
 # pytorch~=
 # tensorflow~=
 # keras~=
@@ -12,3 +14,5 @@ fPDF2~=2.7.5
 
 # Optional tools, you can use for quality of life
 # mlflow~=
+frouros~=0.8.0
+drift-monitor~=0.0.1

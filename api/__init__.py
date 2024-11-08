@@ -9,14 +9,10 @@ docs [1] and at a canonical exemplar module [2].
 
 import logging
 
-import detector as aimodel
+import drift_monitor as monitor
 
-from detector.api import (  # pylint: disable=E0611,E0401
-    config,
-    responses,
-    schemas,
-    utils,
-)
+import detector as aimodel
+from detector.api import config, responses, schemas, utils  # noqa: F401
 
 logger = logging.getLogger(__name__)
 logger.setLevel(config.LOG_LEVEL)
@@ -57,7 +53,13 @@ def warm():
     """
     try:  # Call your AI model warm() method
         logger.info("Warming up the model.api...")
+        monitor.register(accept_terms=True)
+        name = config.API_NAME
+        description = config.API_METADATA.get("summary")
+        monitor.new_experiment(name, description, public=True)
         aimodel.warm()
+    except ValueError as err:
+        logger.warning("Experiment already created? %s", err)
     except Exception as err:
         logger.error("Error when warming up: %s", err, exc_info=True)
         raise RuntimeError(reason=err) from err
@@ -83,7 +85,11 @@ def predict(model_name, input_file, accept="application/json", **options):
         logger.info("Using model %s for predictions", model_name)
         logger.debug("Loading data from input_file: %s", input_file.filename)
         logger.debug("Predict with options: %s", options)
-        result = aimodel.predict(model_name, input_file.filename, **options)
+        experiment_name = config.API_NAME
+        input_filename = input_file.filename
+        with monitor.DriftMonitor(experiment_name, model_name) as drift:
+            result = aimodel.predict(model_name, input_filename, **options)
+            drift.data(result["p_value"] > 0.05, result)
         logger.debug("Predict result: %s", result)
         logger.info("Returning content_type for: %s", accept)
         return responses.content_types[accept](result, **options)
